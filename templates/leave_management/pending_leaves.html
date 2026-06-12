@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Pending Leaves{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Pending Leave Requests</h1><p>Review and approve or reject student leave requests</p></div>
+{% if leaves %}
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <div class="table-container" style="border:none;">
+            <table>
+                <thead><tr><th>Student</th><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Reason</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{ leave.student.username }}</td>
+                        <td>{{ leave.get_leave_type_display }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.duration }}</td>
+                        <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ leave.reason }}</td>
+                        <td><a href="{% url 'review_leave' leave.pk %}" class="btn btn-primary btn-sm">Review</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">✅</div><h3>All Clear!</h3><p>No pending leave requests to review.</p></div></div></div>
+{% endif %}
+{% endblock %}

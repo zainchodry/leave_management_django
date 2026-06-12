@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block title %}Announcements{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+    <div><h1>Announcements</h1><p>System-wide announcements and updates</p></div>
+    {% if user.role == 'ADMIN' %}<a href="{% url 'create_announcement' %}" class="btn btn-primary"><i class="fas fa-plus"></i> New</a>{% endif %}
+</div>
+{% if announcements %}
+    {% for ann in announcements %}
+    <div class="announcement-card">
+        <div class="flex-between">
+            <h3>{{ ann.title }}</h3>
+            {% if user.role == 'ADMIN' %}<a href="{% url 'delete_announcement' ann.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>{% endif %}
+        </div>
+        <p>{{ ann.content }}</p>
+        <div class="meta">Posted by {{ ann.created_by.username }} · {{ ann.created_at|timesince }} ago</div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📢</div><h3>No Announcements</h3><p>No announcements have been posted yet.</p></div></div></div>
+{% endif %}
+{% endblock %}

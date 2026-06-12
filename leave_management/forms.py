@@ -1,84 +1,44 @@
 from django import forms
 from .models import LeaveRequest
 
-class LeaveForm(
-    forms.ModelForm
-):
 
+class LeaveForm(forms.ModelForm):
     class Meta:
-
         model = LeaveRequest
-
-        fields = (
-
-            "leave_type",
-
-            "start_date",
-
-            "end_date",
-
-            "reason"
-        )
-
+        fields = ('leave_type', 'start_date', 'end_date', 'reason')
         widgets = {
-
-            "leave_type":
-            forms.Select(
-                choices=LeaveRequest.LEAVE_TYPE_CHOICES,
-                attrs={
-                    "class": "form-control"
-                }
-            ),
-
-            "start_date":
-            forms.DateInput(
-                attrs={
-                    "type": "date"
-                }
-            ),
-
-            "end_date":
-            forms.DateInput(
-                attrs={
-                    "type": "date"
-                }
-            ),
-            "reason":
-            forms.Textarea(
-                attrs={
-                    "class": "form-control"
-                }
-            )
+            'leave_type': forms.Select(attrs={'class': 'form-control'}),
+            'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Explain your reason for leave...'}),
         }
 
-class LeaveReviewForm(
-    forms.ModelForm
-):
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
 
+        if start_date and end_date and end_date < start_date:
+            raise forms.ValidationError('End date cannot be before start date.')
+
+        return cleaned_data
+
+
+class LeaveReviewForm(forms.ModelForm):
     class Meta:
-
         model = LeaveRequest
-
-        fields = (
-
-            "status",
-
-            "teacher_remark"
-        )
-
+        fields = ('status', 'teacher_remark')
         widgets = {
-            "status":
-            forms.Select(
-                choices=LeaveRequest.STATUS_CHOICES,
-                attrs={
-                    "class": "form-control"
-                }
+            'status': forms.Select(
+                choices=[
+                    ('APPROVED', 'Approved'),
+                    ('REJECTED', 'Rejected'),
+                ],
+                attrs={'class': 'form-control'},
             ),
-
-            "teacher_remark":
-            forms.Textarea(
-                attrs={
-                    "class": "form-control"
-                }
-            )
+            'teacher_remark': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Add your remark here...',
+            }),
         }

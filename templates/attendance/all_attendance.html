@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block title %}All Attendance{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+    <div><h1>All Attendance Records</h1><p>Manage attendance across the system</p></div>
+    <a href="{% url 'attendance_statistics' %}" class="btn btn-outline"><i class="fas fa-chart-pie"></i> Statistics</a>
+</div>
+{% if attendance %}
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <div class="table-container" style="border:none;">
+            <table>
+                <thead><tr><th>Student</th><th>Date</th><th>Status</th><th>Marked By</th><th>Remarks</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for a in attendance %}
+                    <tr>
+                        <td>{{ a.student.username }}</td>
+                        <td>{{ a.date }}</td>
+                        <td><span class="badge badge-{{ a.status|lower }}">{{ a.status }}</span></td>
+                        <td>{{ a.marked_by.username|default:"-" }}</td>
+                        <td>{{ a.remarks|default:"-" }}</td>
+                        <td class="btn-group">
+                            <a href="{% url 'update_attendance' a.pk %}" class="btn btn-outline btn-sm">Edit</a>
+                            <a href="{% url 'delete_attendance' a.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Delete?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📋</div><h3>No Records</h3><p>No attendance records found.</p></div></div></div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}My Leaves{% endblock %}
+{% block content %}
+<div class="page-header flex-between">
+    <div><h1>My Leaves</h1><p>Track your leave request history</p></div>
+    <a href="{% url 'apply_leave' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Apply Leave</a>
+</div>
+{% if leaves %}
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <div class="table-container" style="border:none;">
+            <table>
+                <thead><tr><th>Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Remark</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for leave in leaves %}
+                    <tr>
+                        <td>{{ leave.get_leave_type_display }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td>{{ leave.duration }}</td>
+                        <td><span class="badge badge-{{ leave.status|lower }}">{{ leave.status }}</span></td>
+                        <td>{{ leave.teacher_remark|default:"-" }}</td>
+                        <td>
+                            {% if leave.status == 'PENDING' %}
+                            <a href="{% url 'cancel_leave' leave.pk %}" class="btn btn-danger btn-sm" onclick="return confirm('Cancel this leave?')">Cancel</a>
+                            {% else %}-{% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📋</div><h3>No Leave Requests</h3><p>You haven't submitted any leave requests yet.</p><a href="{% url 'apply_leave' %}" class="btn btn-primary mt-2">Apply Now</a></div></div></div>
+{% endif %}
+{% endblock %}

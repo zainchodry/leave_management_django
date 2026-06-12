@@ -1,3 +1,10 @@
 from django.contrib import admin
+from .models import Attendance
 
-# Register your models here.
+
+@admin.register(Attendance)
+class AttendanceAdmin(admin.ModelAdmin):
+    list_display = ('student', 'date', 'status', 'marked_by', 'created_at')
+    list_filter = ('status', 'date')
+    search_fields = ('student__email', 'student__username')
+    ordering = ('-date',)

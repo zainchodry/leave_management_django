@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Attendance Statistics{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Attendance Statistics</h1><p>System-wide attendance overview</p></div>
+<div class="stats-grid">
+    <div class="stat-card cyan"><div class="stat-icon">📊</div><div class="stat-value">{{ total }}</div><div class="stat-label">Total Records</div></div>
+    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value">{{ present }}</div><div class="stat-label">Present</div></div>
+    <div class="stat-card error"><div class="stat-icon">❌</div><div class="stat-value">{{ absent }}</div><div class="stat-label">Absent</div></div>
+    <div class="stat-card warning"><div class="stat-icon">📋</div><div class="stat-value">{{ leave }}</div><div class="stat-label">On Leave</div></div>
+</div>
+{% if total > 0 %}
+<div class="card" style="max-width:500px;">
+    <div class="card-header">Rate Breakdown</div>
+    <div class="card-body">
+        <div class="form-group"><label>Present Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-success" data-width="{% widthratio present total 100 %}"></div></div>
+            <span class="helptext">{% widthratio present total 100 %}%</span>
+        </div>
+        <div class="form-group"><label>Absent Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-error" data-width="{% widthratio absent total 100 %}"></div></div>
+            <span class="helptext">{% widthratio absent total 100 %}%</span>
+        </div>
+        <div class="form-group"><label>Leave Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-warning" data-width="{% widthratio leave total 100 %}"></div></div>
+            <span class="helptext">{% widthratio leave total 100 %}%</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(el) {
+    el.style.width = el.dataset.width + '%';
+});
+</script>
+{% endblock %}

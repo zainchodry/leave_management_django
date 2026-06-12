@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Welcome, {{ user.username }}! 👋</h1>
+    <p>Here's your overview for today</p>
+</div>
+
+{% if user.role == 'STUDENT' %}
+<!-- ===== Leave Balances ===== -->
+{% if leave_balances %}
+<h3 class="mb-2" style="font-size:16px;color:var(--text-secondary);">Leave Balances</h3>
+<div class="balance-grid">
+    {% for balance in leave_balances %}
+    <div class="balance-card">
+        <div class="balance-type">{{ balance.get_leave_type_display }}</div>
+        <div class="balance-value">{{ balance.remaining }}</div>
+        <div class="balance-detail">{{ balance.used_days }}/{{ balance.total_days }} used</div>
+        <div class="progress-bar-container mt-1">
+            <div class="progress-bar-fill" data-width="{% widthratio balance.used_days balance.total_days 100 %}"></div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- ===== Student Stats ===== -->
+<div class="stats-grid">
+    <div class="stat-card cyan">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ total_leaves }}</div>
+        <div class="stat-label">Total Leaves</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ pending_leaves }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ approved_leaves }}</div>
+        <div class="stat-label">Approved</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{{ attendance_percentage }}%</div>
+        <div class="stat-label">Attendance</div>
+    </div>
+</div>
+
+<!-- ===== Recent Leaves ===== -->
+<div class="card">
+    <div class="card-header flex-between">
+        <span>Recent Leave Requests</span>
+        <a href="{% url 'my_leaves' %}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if recent_leaves %}
+        <div class="table-container" style="border:none;border-radius:0;">
+            <table>
+                <thead><tr><th>Type</th><th>From</th><th>To</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for leave in recent_leaves %}
+                    <tr>
+                        <td>{{ leave.get_leave_type_display }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td><span class="badge badge-{{ leave.status|lower }}">{{ leave.status }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>No leave requests yet. <a href="{% url 'apply_leave' %}">Apply for leave</a></p></div>
+        {% endif %}
+    </div>
+</div>
+
+{% elif user.role == 'TEACHER' %}
+<!-- ===== Teacher Stats ===== -->
+<div class="stats-grid">
+    <div class="stat-card warning">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ pending_count }}</div>
+        <div class="stat-label">Pending Reviews</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">✅</div>
+        <div class="stat-value">{{ total_reviewed }}</div>
+        <div class="stat-label">Reviewed</div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header flex-between">
+        <span>Pending Leave Requests</span>
+        <a href="{% url 'pending_leaves' %}" class="btn btn-outline btn-sm">View All</a>
+    </div>
+    <div class="card-body" style="padding:0;">
+        {% if pending_leaves %}
+        <div class="table-container" style="border:none;border-radius:0;">
+            <table>
+                <thead><tr><th>Student</th><th>Type</th><th>From</th><th>To</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for leave in pending_leaves %}
+                    <tr>
+                        <td>{{ leave.student.username }}</td>
+                        <td>{{ leave.get_leave_type_display }}</td>
+                        <td>{{ leave.start_date }}</td>
+                        <td>{{ leave.end_date }}</td>
+                        <td><a href="{% url 'review_leave' leave.pk %}" class="btn btn-primary btn-sm">Review</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><p>No pending leave requests 🎉</p></div>
+        {% endif %}
+    </div>
+</div>
+
+{% elif user.role == 'ADMIN' %}
+<!-- ===== Admin Stats ===== -->
+<div class="stats-grid">
+    <div class="stat-card cyan">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card purple">
+        <div class="stat-icon">🎓</div>
+        <div class="stat-value">{{ total_students }}</div>
+        <div class="stat-label">Students</div>
+    </div>
+    <div class="stat-card green">
+        <div class="stat-icon">👨‍🏫</div>
+        <div class="stat-value">{{ total_teachers }}</div>
+        <div class="stat-label">Teachers</div>
+    </div>
+    <div class="stat-card warning">
+        <div class="stat-icon">📋</div>
+        <div class="stat-value">{{ total_leaves }}</div>
+        <div class="stat-label">Total Leaves</div>
+    </div>
+    <div class="stat-card error">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-value">{{ pending_leaves }}</div>
+        <div class="stat-label">Pending</div>
+    </div>
+    <div class="stat-card pink">
+        <div class="stat-icon">📊</div>
+        <div class="stat-value">{{ total_attendance }}</div>
+        <div class="stat-label">Attendance Records</div>
+    </div>
+</div>
+
+<div class="stats-grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr));">
+    <div class="card">
+        <div class="card-header">Quick Actions</div>
+        <div class="card-body">
+            <div class="btn-group" style="flex-direction:column;">
+                <a href="{% url 'all_leaves' %}" class="btn btn-outline">📋 Manage All Leaves</a>
+                <a href="{% url 'leave_statistics' %}" class="btn btn-outline">📊 Leave Statistics</a>
+                <a href="{% url 'all_attendance' %}" class="btn btn-outline">📝 All Attendance</a>
+                <a href="{% url 'attendance_statistics' %}" class="btn btn-outline">📈 Attendance Stats</a>
+                <a href="{% url 'create_announcement' %}" class="btn btn-primary">📢 New Announcement</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ===== Announcements ===== -->
+{% if announcements %}
+<h3 class="mt-3 mb-2" style="font-size:16px;color:var(--text-secondary);">📢 Latest Announcements</h3>
+{% for ann in announcements %}
+<div class="announcement-card">
+    <h3>{{ ann.title }}</h3>
+    <p>{{ ann.content }}</p>
+    <div class="meta">By {{ ann.created_by.username }} · {{ ann.created_at|timesince }} ago</div>
+</div>
+{% endfor %}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(el) {
+    el.style.width = el.dataset.width + '%';
+});
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+{% block auth_content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="brand">
+            <div class="brand-icon-lg">🎓</div>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your account</p>
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}
+                <ul class="errorlist">{% for error in field.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+                {% endif %}
+            </div>
+            {% endfor %}
+            {% if form.non_field_errors %}
+            <div class="errorlist" style="margin-bottom:16px;">
+                {% for error in form.non_field_errors %}<p style="color:var(--error);font-size:13px;">{{ error }}</p>{% endfor %}
+            </div>
+            {% endif %}
+            <button type="submit" class="btn btn-primary btn-block btn-lg">Sign In</button>
+        </form>
+        <div class="auth-links">
+            <p><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+            <p class="mt-1">Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

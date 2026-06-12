@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block title %}Leave Statistics{% endblock %}
+{% block content %}
+<div class="page-header"><h1>Leave Statistics</h1><p>Overview of all leave requests</p></div>
+<div class="stats-grid">
+    <div class="stat-card cyan"><div class="stat-icon">📋</div><div class="stat-value">{{ total }}</div><div class="stat-label">Total Requests</div></div>
+    <div class="stat-card warning"><div class="stat-icon">⏳</div><div class="stat-value">{{ pending }}</div><div class="stat-label">Pending</div></div>
+    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value">{{ approved }}</div><div class="stat-label">Approved</div></div>
+    <div class="stat-card error"><div class="stat-icon">❌</div><div class="stat-value">{{ rejected }}</div><div class="stat-label">Rejected</div></div>
+    <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-value">{{ cancelled }}</div><div class="stat-label">Cancelled</div></div>
+</div>
+{% if total > 0 %}
+<div class="card" style="max-width:500px;">
+    <div class="card-header">Breakdown</div>
+    <div class="card-body">
+        <div class="form-group"><label>Approved Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-success" data-width="{% widthratio approved total 100 %}"></div></div>
+            <span class="helptext">{% widthratio approved total 100 %}%</span>
+        </div>
+        <div class="form-group"><label>Rejected Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-error" data-width="{% widthratio rejected total 100 %}"></div></div>
+            <span class="helptext">{% widthratio rejected total 100 %}%</span>
+        </div>
+        <div class="form-group"><label>Pending Rate</label>
+            <div class="progress-bar-container"><div class="progress-bar-fill bar-warning" data-width="{% widthratio pending total 100 %}"></div></div>
+            <span class="helptext">{% widthratio pending total 100 %}%</span>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(el) {
+    el.style.width = el.dataset.width + '%';
+});
+</script>
+{% endblock %}

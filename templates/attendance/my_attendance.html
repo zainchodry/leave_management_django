@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+<div class="page-header"><h1>My Attendance</h1><p>Your attendance records and statistics</p></div>
+<div class="stats-grid">
+    <div class="stat-card cyan"><div class="stat-icon">📊</div><div class="stat-value">{{ percentage }}%</div><div class="stat-label">Attendance Rate</div></div>
+    <div class="stat-card green"><div class="stat-icon">✅</div><div class="stat-value">{{ present }}</div><div class="stat-label">Present</div></div>
+    <div class="stat-card error"><div class="stat-icon">❌</div><div class="stat-value">{{ absent }}</div><div class="stat-label">Absent</div></div>
+    <div class="stat-card purple"><div class="stat-icon">📅</div><div class="stat-value">{{ total }}</div><div class="stat-label">Total Days</div></div>
+</div>
+{% if total > 0 %}
+<div class="card mb-3" style="max-width:400px;">
+    <div class="card-body">
+        <label class="progress-label">Overall Attendance</label>
+        <div class="progress-bar-container mt-1 progress-bar-lg">
+            <div class="progress-bar-fill {% if percentage >= 75 %}bar-success{% elif percentage >= 50 %}bar-warning{% else %}bar-error{% endif %}" data-width="{{ percentage }}"></div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% if records %}
+<div class="card">
+    <div class="card-body" style="padding:0;">
+        <div class="table-container" style="border:none;">
+            <table>
+                <thead><tr><th>Date</th><th>Status</th><th>Marked By</th><th>Remarks</th></tr></thead>
+                <tbody>
+                    {% for r in records %}
+                    <tr>
+                        <td>{{ r.date }}</td>
+                        <td><span class="badge badge-{{ r.status|lower }}">{{ r.status }}</span></td>
+                        <td>{{ r.marked_by.username|default:"-" }}</td>
+                        <td>{{ r.remarks|default:"-" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📋</div><h3>No Records</h3><p>No attendance records found.</p></div></div></div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.progress-bar-fill[data-width]').forEach(function(el) {
+    el.style.width = el.dataset.width + '%';
+});
+</script>
+{% endblock %}
